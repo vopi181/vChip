@@ -44,11 +44,17 @@ void emulate_cycle(Chip8* chip) {
   chip->opcode = chip->memory[chip->pc] << 8 | chip->memory[chip->pc + 1];
 
   // Decode Opcode
-  switch (chip->memory[chip->pc] << 1) {}
+  switch (chip->memory[chip->pc] & 0x0FFF) {
+    case 0xA000:
+      chip->I = chip->opcode & 0x0FFF;
+      chip->pc += 2;
+  }
   // Execute Opcode
   // update timers
 }
 
 int main(int argc, char** argv) {
   Chip8* myChip8;
+  initialize(myChip8);
+
 }
