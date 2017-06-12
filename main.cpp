@@ -28,6 +28,7 @@ typedef struct {
   unsigned short stack[16];
   unsigned short sp;
   unsigned char key[16];
+  std::vector<char> rom; //WE GETTING C++ UP ON THIS BITCH
 } Chip8;
 
 void initialize(Chip8* chip) {
