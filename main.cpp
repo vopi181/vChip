@@ -4,6 +4,9 @@
 #include <fstream>
 #include <iterator> //ifstream_iter
 #include <algorithm>
+#include <cstdlib>
+#include <ctime>
+
 // ref
 // 0x000-0x1FF - Chip 8 interpreter (contains font set in emu)
 // 0x050-0x0A0 - Used for the built in 4x5 pixel font set (0-F)
@@ -104,6 +107,7 @@ void emulate_cycle(chip8* chip) {
 	switch (chip->opcode & 0xF000) {
         case 0x0000:
             switch (chip->opcode & 0x000F) {
+                //@TODO
                 case 0x0000: //0x00E0: Clear Screen
                     //exec op
                     printf("clear screen\n");
@@ -242,18 +246,111 @@ void emulate_cycle(chip8* chip) {
                     chip->pc += 2;
                     break;
                 }
+                case 0x000E: {
+                    auto Vx = chip->opcode & 0x0F00;
+                    auto Vy = chip->opcode & 0x00F0;
+                    chip->V[0xF] = (chip->V[Vx] << 2);
+                    chip->V[Vx] << 1;
+                    chip->pc += 2;
+                    break;
+                }
                 default: {
                     printf("opcode err [0x8000]: 0x%x\n", chip->opcode);
                     break;
                 }
+
             }
         }
+        case 0x0009: {
+            auto Vx = chip->opcode & 0x0F00;
+            auto Vy = chip->opcode & 0x00F0;
+            if(chip->V[Vx] != chip->V[Vy]) {
+                chip->pc += 4;
+            }
 
+        }
         case 0xA000:
             chip->I = (unsigned short) (chip->opcode & 0x0FFF);
             chip->pc += 2;
             break;
+        case 0xB000: {
+            auto NNN = chip->opcode & 0x0FFF;
+            chip->pc = NNN + chip->V[0];
+            break;
 
+        }
+        case 0xC000: {
+            auto Vx = chip->opcode & 0x0F00;
+            auto NN = chip->opcode & 0x00FF;
+            srand(time(NULL));
+            int randnum = rand() % 255;
+            chip->V[Vx] = randnum & NN;
+            chip->pc += 2;
+            break;
+        }
+        case 0xD000: {
+            auto Vx = chip->opcode & 0x0F00;
+            auto Vy = chip->opcode & 0x00F0;
+            auto N = chip->opcode & 0x000F;
+            //@TODO
+            printf("draw at x = %d y = %d h = %d\n", chip->V[Vx], chip->V[Vy], N);
+            chip->pc += 2;
+            break;
+        }
+        case 0xE000: {
+            switch (chip->opcode & 0x00FF) {
+                case 0x009E: {
+                    //@TODO
+                    auto Vx = chip->opcode & 0x0F00;
+                    /*
+                     * if (get_key() == chip->V[Vx]) {
+                     * chip->pc += 4;
+                     * } else {
+                     *  chip->pc += 2??
+                     * }
+                     *
+                     */
+                    break;
+                }
+                case 0x00A1: {
+                    //@TODO
+                    auto Vx = chip->opcode & 0x0F00;
+                    /*
+                     * if (get_key() != chip->V[Vx]) {
+                     * chip->pc += 4;
+                     * } else {
+                     *  chip->pc += 2??
+                     * }
+                     *
+                     */
+                    break;
+                }
+                default: {
+                    printf("opcode err [0xE000]: %x\n", chip->opcode);
+                }
+                case 0xF000: {
+                    switch(chip->opcode & 0x00FF) {
+                        case 0x0007: {
+                            auto Vx = chip->opcode & 0x0F00;
+                            chip->V[Vx] = chip->delay_timer;
+                            chip->pc += 2;
+                            break;
+
+                        }
+                        case 0x000A: {
+                            //blocking wait for keypress
+                            auto Vx = chip->opcode & 0x0F00;
+                            // @TODO
+                            // chip->V[Vx] = get_key_blocking();
+
+                        }
+                        default: {
+                            printf("opcode err [0xF000]: %x\n", chip->opcode);
+                        }
+                    }
+                }
+            }
+        }
 	    default: {
             printf("opcode err: 0x%x\n", chip->opcode);
             break;
