@@ -96,18 +96,29 @@ void initialize(chip8* chip) {
 
 void emulate_cycle(chip8* chip) {
 	// Fetch opcode
-	std::cout << "DEBUG: memory[pc] = " << chip->memory[chip->pc] << "\n";
-	std::cout << "DEBUG: memory[pc + 1] = " << chip->memory[chip->pc + 1] << "\n";
+	printf("DEBUG: memory[pc] = %x\n", chip->memory[chip->pc]);
+    printf("DEBUG: memory[pc + 1] = %x\n", chip->memory[chip->pc + 1]);
 	chip->opcode = chip->memory[chip->pc] << 8 | chip->memory[chip->pc + 1];
 
 	// Decode Opcode
-	switch (chip->opcode & 0x0FFF) {
-	case 0xA000:
-		chip->I = (unsigned short) (chip->opcode & 0x0FFF);
-		chip->pc += 2;
-		break;
-
-	default: printf("opcode err: %x\n", chip->opcode); system("pause"); break;
+	switch (chip->opcode & 0xF000) {
+        case 0x0000:
+            switch (chip->opcode & 0x000F) {
+                case 0x0000: //0x00E0: Clear Screen
+                    //exec op
+                    printf("clear screen\n");
+                    break;
+                case 0x000e: //0x00ee: return from subrtn
+                    //exec op
+                    break;
+                default:
+                    printf("Unknown opcode [0x0000]: 0x%x\n", chip->opcode);
+            }
+        case 0xA000:
+            chip->I = (unsigned short) (chip->opcode & 0x0FFF);
+            chip->pc += 2;
+            break;
+	default: printf("opcode err: 0x%x\n", chip->opcode); system("pause"); break;
 
 
 	}
@@ -134,8 +145,8 @@ int main(int argc, char** argv) {
     std::copy(file.begin(), file.end(), std::back_inserter(myChip.rom));
 
 	initialize(&myChip);
-	printf("%x", myChip.rom[1]);
-	printf("%x", myChip.memory[514]);
+	printf("myChip.rom[1] = %x\n", myChip.rom[1]);
+	printf("myChip.memory[514] = %x\n", myChip.memory[514]);
 
 for (;;) {
   emulate_cycle(&myChip);
