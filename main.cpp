@@ -116,11 +116,29 @@ void emulate_cycle(chip8* chip) {
                 default:
                     printf("Unknown opcode [0x0000]: 0x%x\n", chip->opcode);
             }
+        case 0x1000:
+            chip->pc = chip->opcode & 0x0FFF;
+            break;
         case 0x2000:
             chip->stack[chip->sp] = chip->pc; //need to store previous address before jump
             ++chip->sp;
             chip->pc = chip->opcode & 0x0FFF;
             break; //no need to inc PC by 2
+		case 0x3000: {
+            auto NN = (chip->opcode & 0x00FF);
+            if (chip->V[(chip->opcode & 0x0F00) >> 8] = NN) {
+                chip->pc += 4;
+            }
+        }
+
+            break;
+        case 0x4000: {
+            auto NN = (chip->opcode & 0x00FF);
+            if (chip->V[(chip->opcode & 0x0F00) >> 8] != NN) {
+                chip->pc += 4;
+            }
+        }
+
         case 0xA000:
             chip->I = (unsigned short) (chip->opcode & 0x0FFF);
             chip->pc += 2;
@@ -130,7 +148,10 @@ void emulate_cycle(chip8* chip) {
             chip->V[(chip->opcode & 0x0F00) >> 8] = NN;
             chip->pc += 2;
             break;
-	    default: printf("opcode err: 0x%x\n", chip->opcode); system("pause"); break;
+	    default: {
+            printf("opcode err: 0x%x\n", chip->opcode);
+            system("pause"); break;
+        }
 
 
 	}
