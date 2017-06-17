@@ -156,6 +156,7 @@ void emulate_cycle(chip8* chip) {
         case 0x7000: {
             auto NN = (chip->opcode & 0x00FF);
             chip->V[(chip->opcode & 0x0F00) >> 8] += NN;
+            break;
         }
         case 0x8000: {
             switch (chip->opcode & 0x000F) {
@@ -163,11 +164,38 @@ void emulate_cycle(chip8* chip) {
                     auto Vx = chip->opcode & 0x0F00;
                     auto Vy = chip->opcode & 0x00F0;
                     chip->V[Vx] = chip->V[Vy];
+                    break;
                 }
                 case 0x0001: {
                     auto Vx = chip->opcode & 0x0F00;
                     auto Vy = chip->opcode & 0x00F0;
                     chip->V[Vx] = chip->V[Vx] | chip->V[Vy];
+                    break;
+                }
+                case 0x0002: {
+                    auto Vx = chip->opcode & 0x0F00;
+                    auto Vy = chip->opcode & 0x00F0;
+                    chip->V[Vx] = chip->V[Vx] & chip->V[Vy];
+                    break;
+
+                }
+                case 0x0003: {
+                    auto Vx = chip->opcode & 0x0F00;
+                    auto Vy = chip->opcode & 0x00F0;
+                    chip->V[Vx] = chip->V[Vx] ^ chip->V[Vy];
+                }
+                case 0x0004: {
+                    // this opcode is annoying
+                    // We need to check for a carry
+                    auto Vx = chip->opcode & 0x0F00;
+                    auto Vy = chip->opcode & 0x00F0;
+                    if (chip->V[Vy >> 4] > (0xFF - chip->V[Vx >> 8])) {
+                        chip->V[0xF] = 1; // carry flag
+                    } else {
+                        chip->V[0xF] = 0; //no carry
+
+                    }
+
                 }
                 default: {
                     printf("opcode err [0x8000]: 0x%x\n", chip->opcode);
