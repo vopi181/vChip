@@ -107,18 +107,30 @@ void emulate_cycle(chip8* chip) {
                 case 0x0000: //0x00E0: Clear Screen
                     //exec op
                     printf("clear screen\n");
+                    chip->pc += 2;
                     break;
                 case 0x000e: //0x00ee: return from subrtn
                     //exec op
+                    chip->pc += 2;
                     break;
                 default:
                     printf("Unknown opcode [0x0000]: 0x%x\n", chip->opcode);
             }
+        case 0x2000:
+            chip->stack[chip->sp] = chip->pc; //need to store previous address before jump
+            ++chip->sp;
+            chip->pc = chip->opcode & 0x0FFF;
+            break; //no need to inc PC by 2
         case 0xA000:
             chip->I = (unsigned short) (chip->opcode & 0x0FFF);
             chip->pc += 2;
             break;
-	default: printf("opcode err: 0x%x\n", chip->opcode); system("pause"); break;
+        case 0x6000:
+            auto NN = (chip->opcode & 0x00FF);
+            chip->V[(chip->opcode & 0x0F00) >> 8] = NN;
+            chip->pc += 2;
+            break;
+	    default: printf("opcode err: 0x%x\n", chip->opcode); system("pause"); break;
 
 
 	}
