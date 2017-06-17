@@ -342,7 +342,20 @@ void emulate_cycle(chip8* chip) {
                             auto Vx = chip->opcode & 0x0F00;
                             // @TODO
                             // chip->V[Vx] = get_key_blocking();
-
+                            chip->pc += 2;
+                            break;
+                        }
+                        case 0x0015: {
+                            auto Vx = chip->opcode & 0x0F00;
+                            chip->delay_timer = chip->V[Vx];
+                            chip->pc += 2;
+                            break;
+                        }
+                        case 0x0018: {
+                            auto Vx = chip->opcode & 0x0F00;
+                            chip->sound_timer = chip->V[Vx];
+                            chip->pc +=2;
+                            break;
                         }
                         default: {
                             printf("opcode err [0xF000]: %x\n", chip->opcode);
