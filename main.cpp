@@ -156,6 +156,7 @@ void emulate_cycle(chip8* chip) {
         case 0x7000: {
             auto NN = (chip->opcode & 0x00FF);
             chip->V[(chip->opcode & 0x0F00) >> 8] += NN;
+            chip->pc += 2;
             break;
         }
         case 0x8000: {
@@ -164,18 +165,21 @@ void emulate_cycle(chip8* chip) {
                     auto Vx = chip->opcode & 0x0F00;
                     auto Vy = chip->opcode & 0x00F0;
                     chip->V[Vx] = chip->V[Vy];
+                    chip->pc += 2;
                     break;
                 }
                 case 0x0001: {
                     auto Vx = chip->opcode & 0x0F00;
                     auto Vy = chip->opcode & 0x00F0;
                     chip->V[Vx] = chip->V[Vx] | chip->V[Vy];
+                    chip->pc += 2;
                     break;
                 }
                 case 0x0002: {
                     auto Vx = chip->opcode & 0x0F00;
                     auto Vy = chip->opcode & 0x00F0;
                     chip->V[Vx] = chip->V[Vx] & chip->V[Vy];
+                    chip->pc += 2;
                     break;
 
                 }
@@ -183,6 +187,8 @@ void emulate_cycle(chip8* chip) {
                     auto Vx = chip->opcode & 0x0F00;
                     auto Vy = chip->opcode & 0x00F0;
                     chip->V[Vx] = chip->V[Vx] ^ chip->V[Vy];
+                    chip->pc += 2;
+                    break;
                 }
                 case 0x0004: {
                     // this opcode is annoying
@@ -195,6 +201,34 @@ void emulate_cycle(chip8* chip) {
                         chip->V[0xF] = 0; //no carry
 
                     }
+                    (chip->V[Vx >> 8]) += chip->V[Vy >> 4];
+                    chip->pc += 2;
+                    break;
+                }
+                case 0x0005: {
+                    // this opcode is annoying
+                    // We need to check for a borrow
+                    auto Vx = chip->opcode & 0x0F00;
+                    auto Vy = chip->opcode & 0x00F0;
+                    if (chip->V[Vy >> 4] > (0xFF - chip->V[Vx >> 8])) {
+                        chip->V[0xF] = 1; // borrow flag
+                    } else {
+                        chip->V[0xF] = 0; //no borrow
+
+                    }
+                    (chip->V[Vx >> 8]) -= chip->V[Vy >> 4];
+                    chip->pc += 2;
+                    break;
+                }
+                case 0x0006: {
+                    auto Vx = chip->opcode & 0x0F00;
+                    auto Vy = chip->opcode & 0x00F0;
+                    chip->V[0xF] = (chip->V[Vx] >> 2);
+                    chip->V[Vx] >> 1;
+                }
+                case 0x0007: {
+                    auto Vx = chip->opcode & 0x0F00;
+                    auto Vy = chip->opcode & 0x00F0;
 
                 }
                 default: {
