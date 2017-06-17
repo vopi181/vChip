@@ -1,1 +1,1 @@
-g++ main.cpp -o vChip -fpermissive
+g++ main.cpp -o vChip -fpermissive -g 
