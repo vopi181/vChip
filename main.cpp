@@ -71,6 +71,16 @@ std::vector<BYTE> readFile(const char* filename)
 	return vec;
 }
 
+std::string get_BCD(int num) {
+    if (num <= 1)
+    {
+        return std::string() + (char)('0' + num);
+    }
+
+    int remain = num % 2;
+    return get_BCD(num / 2) + (char)('0' + remain);
+
+}
 void initialize(chip8* chip) {
 	// init registers and memory once
     chip->memory = std::vector<BYTE>(4096);
@@ -354,7 +364,27 @@ void emulate_cycle(chip8* chip) {
                         case 0x0018: {
                             auto Vx = chip->opcode & 0x0F00;
                             chip->sound_timer = chip->V[Vx];
-                            chip->pc +=2;
+                            chip->pc += 2;
+                            break;
+                        }
+                        case 0x001E: {
+                            auto Vx = chip->opcode & 0x0F00;
+                            chip->I = chip->I + chip->V[Vx];
+                            chip->pc += 2;
+                            break;
+                        }
+                        case 0x0029: {
+                            auto Vx = chip->opcode & 0x0F00;
+                            //@TODO
+                            // chip->I = sprite_address[chip->V[Vx]];
+                            chip->pc += 2;
+                            break;
+                        }
+                        case 0x0033: {
+                            //binary coded decimal yeah!
+                            auto Vx = chip->opcode & 0x0F00;
+                            chip->I = std::stoi(get_BCD(chip->V[Vx]));
+                            chip->pc += 2;
                             break;
                         }
                         default: {
