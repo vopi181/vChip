@@ -3,6 +3,7 @@
 #include <vector> //gotta exclude c scum
 #include <fstream>
 #include <iterator> //ifstream_iter
+#include <algorithm>
 // ref
 // 0x000-0x1FF - Chip 8 interpreter (contains font set in emu)
 // 0x050-0x0A0 - Used for the built in 4x5 pixel font set (0-F)
@@ -108,6 +109,8 @@ typedef struct {
 	unsigned char key[16];
 	std::vector<BYTE> rom;
 }chip8;
+chip8 myChip;
+
 
 std::vector<BYTE> readFile(const char* filename)
 {
@@ -136,62 +139,63 @@ std::vector<BYTE> readFile(const char* filename)
 	return vec;
 }
 
-void initialize(chip8 chip) {
+void initialize(chip8* chip) {
 	// init registers and memory once
-
-	chip.pc = 0x200;
-	chip.opcode = 0;
-	chip.I = 0;
-	chip.sp = 0;
+    chip->memory = std::vector<BYTE>(4096);
+	chip->pc = 0x200;
+	chip->opcode = 0;
+	chip->I = 0;
+	chip->sp = 0;
     /*for (int size; size > 512; size++) {
-        chip.memory.push_back(0);
+        chip->memory.push_back(0);
     }*/
 
-    std::fill(chip.memory.begin(), chip.memory.begin() + 512, 0);
-	for (int size = 0; size > chip.rom.size(); size++) {
-		//int i = 0;
-		chip.memory[size + 0x200] = chip.rom[size];
-		//i++;
-
-
-	}
-	std::cout << "finish copying rom to memory\n";
+//    std::fill(chip->memory.begin(), chip->memory.begin() + 4096, 0);
+//	for (int i = 0; i < (chip->rom.size()); i++) {
+//		//int i = 0;
+//		chip->memory[i + 512] = chip->rom[i];
+//		//i++;
+//
+//
+//	}
+    std::copy(chip->rom.begin(), chip->rom.end(), chip->memory.begin() + 512);
+    std::cout << "finish copying rom to memory\n";
 	system("pause");
 }
 
 
 
-void emulate_cycle(chip8 chip) {
+void emulate_cycle(chip8* chip) {
 	// Fetch opcode
-	std::cout << "DEBUG: memory[pc] = " << chip.memory[chip.pc] << "\n";
-	std::cout << "DEBUG: memory[pc + 1] = " << chip.memory[chip.pc + 1] << "\n";
-	chip.opcode = chip.memory[chip.pc] << 8 | chip.memory[chip.pc + 1];
+	std::cout << "DEBUG: memory[pc] = " << chip->memory[chip->pc] << "\n";
+	std::cout << "DEBUG: memory[pc + 1] = " << chip->memory[chip->pc + 1] << "\n";
+	chip->opcode = chip->memory[chip->pc] << 8 | chip->memory[chip->pc + 1];
 
 	// Decode Opcode
-	switch (chip.opcode & 0x0FFF) {
+	switch (chip->opcode & 0x0FFF) {
 	case 0xA000:
-		chip.I = (unsigned short) (chip.opcode & 0x0FFF);
-		chip.pc += 2;
+		chip->I = (unsigned short) (chip->opcode & 0x0FFF);
+		chip->pc += 2;
 		break;
 
-	default: std::cout << "opcode err:" << chip.opcode << "\n"; system("pause"); break;
+	default: printf("opcode err: %x\n", chip->opcode); system("pause"); break;
 
 
 	}
 	// Execute Opcode
 	// update timers
-	if (chip.delay_timer > 0)
-		--chip.delay_timer;
+	if (chip->delay_timer > 0)
+		--chip->delay_timer;
 
-	if (chip.sound_timer > 0)
+	if (chip->sound_timer > 0)
 	{
-		if (chip.sound_timer == 1)
+		if (chip->sound_timer == 1)
 			printf("BEEP!\n");
-		--(chip.sound_timer);
+		--(chip->sound_timer);
 	}
 }
 
-chip8 myChip;
+
 int main(int argc, char** argv) {
 	
 
@@ -200,13 +204,14 @@ int main(int argc, char** argv) {
 	auto file = readFile(argv[1]);
     std::copy(file.begin(), file.end(), std::back_inserter(myChip.rom));
 
-	initialize(myChip);
+	initialize(&myChip);
 	printf("%x", myChip.rom[1]);
 	printf("%x", myChip.memory[514]);
-//for (;;) {
-//  emulate_cycle(myChip)
-//}
-//
+
+for (;;) {
+  emulate_cycle(&myChip);
+}
+
 
 
 
