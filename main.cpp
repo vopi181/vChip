@@ -115,7 +115,7 @@ void emulate_cycle(chip8* chip) {
                     break;
                 default:
                     printf("Unknown opcode [0x0000]: 0x%x\n", chip->opcode);
-            }
+            } break;
         case 0x1000:
             chip->pc = chip->opcode & 0x0FFF;
             break;
@@ -146,18 +146,44 @@ void emulate_cycle(chip8* chip) {
 
             }
         }
-        case 0xA000:
-            chip->I = (unsigned short) (chip->opcode & 0x0FFF);
-            chip->pc += 2;
-            break;
-        case 0x6000:
+
+        case 0x6000:{
             auto NN = (chip->opcode & 0x00FF);
             chip->V[(chip->opcode & 0x0F00) >> 8] = NN;
             chip->pc += 2;
             break;
+        }
+        case 0x7000: {
+            auto NN = (chip->opcode & 0x00FF);
+            chip->V[(chip->opcode & 0x0F00) >> 8] += NN;
+        }
+        case 0x8000: {
+            switch (chip->opcode & 0x000F) {
+                case 0x0000: {
+                    auto Vx = chip->opcode & 0x0F00;
+                    auto Vy = chip->opcode & 0x00F0;
+                    chip->V[Vx] = chip->V[Vy];
+                }
+                case 0x0001: {
+                    auto Vx = chip->opcode & 0x0F00;
+                    auto Vy = chip->opcode & 0x00F0;
+                    chip->V[Vx] = chip->V[Vx] | chip->V[Vy];
+                }
+                default: {
+                    printf("opcode err [0x8000]: 0x%x\n", chip->opcode);
+                    break;
+                }
+            }
+        }
+
+        case 0xA000:
+            chip->I = (unsigned short) (chip->opcode & 0x0FFF);
+            chip->pc += 2;
+            break;
+
 	    default: {
             printf("opcode err: 0x%x\n", chip->opcode);
-            system("pause"); break;
+            break;
         }
 
 
@@ -190,6 +216,7 @@ int main(int argc, char** argv) {
 
 for (;;) {
   emulate_cycle(&myChip);
+
 }
 
 
