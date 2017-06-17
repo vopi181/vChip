@@ -126,7 +126,7 @@ void emulate_cycle(chip8* chip) {
             break; //no need to inc PC by 2
 		case 0x3000: {
             auto NN = (chip->opcode & 0x00FF);
-            if (chip->V[(chip->opcode & 0x0F00) >> 8] = NN) {
+            if (chip->V[(chip->opcode & 0x0F00) >> 8] == NN) {
                 chip->pc += 4;
             }
         }
@@ -138,7 +138,14 @@ void emulate_cycle(chip8* chip) {
                 chip->pc += 4;
             }
         }
+        case 0x5000: {
+            auto Vx = (chip->opcode & 0x0F00);
+            auto Vy = (chip->opcode & 0x00F0);
+            if((chip->V[Vx] >> 8) == (chip->V[Vy] >> 8)) {
+                chip->pc += 4;
 
+            }
+        }
         case 0xA000:
             chip->I = (unsigned short) (chip->opcode & 0x0FFF);
             chip->pc += 2;
