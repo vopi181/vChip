@@ -1,11 +1,15 @@
 #include <iostream>  //c++ style io
-#include <stdio.h>   //good ol' c style io
+#include <cstdio>  //good ol' c style io
 #include <vector> //gotta exclude c scum
 #include <fstream>
 #include <iterator> //ifstream_iter
 #include <algorithm>
 #include <cstdlib>
 #include <ctime>
+#include <string>
+#include <cstring>
+
+
 
 // ref
 // 0x000-0x1FF - Chip 8 interpreter (contains font set in emu)
@@ -47,21 +51,21 @@ chip8 myChip;
 std::vector<BYTE> readFile(const char* filename)
 {
 	// open the file:
-	std::ifstream file(filename, std::ios::binary);
+	std::ifstream file(filename, std::ios::in | std::ios::binary);
 
 	// Stop eating new lines in binary mode!!!
 	file.unsetf(std::ios::skipws);
 
 	// get its size:
 	std::streampos fileSize;
-
+//    file.clear();
 	file.seekg(0, std::ios::end);
 	fileSize = file.tellg();
 	file.seekg(0, std::ios::beg);
 
 	// reserve capacity
 	std::vector<BYTE> vec;
-	vec.reserve((unsigned long long int) fileSize);
+	vec.reserve(fileSize);
 
 	// read the data:
 	vec.insert(vec.begin(),
