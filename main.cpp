@@ -311,37 +311,38 @@ void emulate_cycle(chip8* chip) {
             chip->pc += 2;
             break;
         }
-        case 0xE000: {
-            switch (chip->opcode & 0x00FF) {
-                case 0x009E: {
-                    //@TODO
-                    auto Vx = chip->opcode & 0x0F00;
-                    /*
-                     * if (get_key() == chip->V[Vx]) {
-                     * chip->pc += 4;
-                     * } else {
-                     *  chip->pc += 2??
-                     * }
-                     *
-                     */
-                    break;
-                }
-                case 0x00A1: {
-                    //@TODO
-                    auto Vx = chip->opcode & 0x0F00;
-                    /*
-                     * if (get_key() != chip->V[Vx]) {
-                     * chip->pc += 4;
-                     * } else {
-                     *  chip->pc += 2??
-                     * }
-                     *
-                     */
-                    break;
-                }
-                default: {
-                    printf("opcode err [0xE000]: %x\n", chip->opcode);
-                }
+		case 0xE000: {
+			switch (chip->opcode & 0x00FF) {
+			case 0x009E: {
+				//@TODO
+				auto Vx = chip->opcode & 0x0F00;
+				/*
+				 * if (get_key() == chip->V[Vx]) {
+				 * chip->pc += 4;
+				 * } else {
+				 *  chip->pc += 2??
+				 * }
+				 *
+				 */
+				break;
+			}
+			case 0x00A1: {
+				//@TODO
+				auto Vx = chip->opcode & 0x0F00;
+				/*
+				 * if (get_key() != chip->V[Vx]) {
+				 * chip->pc += 4;
+				 * } else {
+				 *  chip->pc += 2??
+				 * }
+				 *
+				 */
+				break;
+			}
+			default: {
+				printf("opcode err [0xE000]: %x\n", chip->opcode);
+			}
+			} }
                 case 0xF000: {
                     switch(chip->opcode & 0x00FF) {
                         case 0x0007: {
