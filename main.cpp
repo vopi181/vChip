@@ -9,6 +9,9 @@
 #include <string>
 #include <cstring>
 #include <SFML/System.hpp>
+#include <SFML/Window.hpp>
+#include <SFML/Graphics.hpp>
+
 
 
 
@@ -33,6 +36,10 @@
 // decs
 
 
+#define WIN_HEIGHT 800
+#define WIN_WIDTH 600
+//sprite width is static @ 8 bytes / 1 byte
+#define SPRITE_WIDTH = 8
 
 typedef unsigned char BYTE;
 
@@ -48,6 +55,7 @@ typedef struct {
 	unsigned short stack[16];
 	unsigned short sp;
 	unsigned char key[16];
+	bool draw_flag;
 	std::vector<BYTE> rom;
 }chip8;
 chip8 myChip;
@@ -97,18 +105,28 @@ void initialize(chip8* chip) {
 	chip->opcode = 0;
 	chip->I = 0;
 	chip->sp = 0;
-	/*for (int size; size > 512; size++) {
-		chip->memory.push_back(0);
-	}*/
+	std::vector<BYTE> fontset = {
+		0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+		0x20, 0x60, 0x20, 0x20, 0x70, // 1
+		0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+		0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+		0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+		0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+		0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+		0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+		0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+		0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+		0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+		0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+		0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+		0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+		0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+		0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+	};
 
-	//    std::fill(chip->memory.begin(), chip->memory.begin() + 4096, 0);
-	//	for (int i = 0; i < (chip->rom.size()); i++) {
-	//		//int i = 0;
-	//		chip->memory[i + 512] = chip->rom[i];
-	//		//i++;
-	//
-	//
-	//	}
+	//copy fontset to 0x050-0x0A0
+	for (int i = 0; i < fontset.size(); i++) { chip->memory[i + 0x050] = fontset[i]; }
+
 	std::copy(chip->rom.begin(), chip->rom.end(), chip->memory.begin() + 512);
 	std::cout << "finish copying rom to memory\n";
 	system("pause");
@@ -116,7 +134,7 @@ void initialize(chip8* chip) {
 
 
 
-void emulate_cycle(chip8* chip) {
+void emulate_cycle(chip8* chip, sf::RenderWindow* window) {
 	// Fetch opcode
 	printf("DEBUG: memory[pc] = %x\n", chip->memory[chip->pc]);
 	printf("DEBUG: memory[pc + 1] = %x\n", chip->memory[chip->pc + 1]);
@@ -126,10 +144,11 @@ void emulate_cycle(chip8* chip) {
 	switch (chip->opcode & 0xF000) {
 	case 0x0000:
 		switch (chip->opcode & 0x000F) {
-			//@TODO
+			
 		case 0x0000: //0x00E0: Clear Screen
 			//exec op
 			printf("clear screen\n");
+			window->clear(sf::Color::Black);
 			chip->pc += 2;
 			break;
 		case 0x000e: //0x00ee: return from subrtn
@@ -186,30 +205,30 @@ void emulate_cycle(chip8* chip) {
 	case 0x8000: {
 		switch (chip->opcode & 0x000F) {
 		case 0x0000: {
-			auto Vx = chip->opcode & 0x0F00;
-			auto Vy = chip->opcode & 0x00F0;
+			auto Vx = (chip->opcode & 0x0F00) >> 8;
+			auto Vy = (chip->opcode & 0x00F0) >> 4;
 			chip->V[Vx] = chip->V[Vy];
 			chip->pc += 2;
 			break;
 		}
 		case 0x0001: {
-			auto Vx = chip->opcode & 0x0F00;
-			auto Vy = chip->opcode & 0x00F0;
+			auto Vx = (chip->opcode & 0x0F00) >> 8;
+			auto Vy = (chip->opcode & 0x00F0) >> 4;
 			chip->V[Vx] = chip->V[Vx] | chip->V[Vy];
 			chip->pc += 2;
 			break;
 		}
 		case 0x0002: {
-			auto Vx = chip->opcode & 0x0F00;
-			auto Vy = chip->opcode & 0x00F0;
+			auto Vx = (chip->opcode & 0x0F00) >> 8;
+			auto Vy = (chip->opcode & 0x00F0) >> 4;
 			chip->V[Vx] = chip->V[Vx] & chip->V[Vy];
 			chip->pc += 2;
 			break;
 
 		}
 		case 0x0003: {
-			auto Vx = chip->opcode & 0x0F00;
-			auto Vy = chip->opcode & 0x00F0;
+			auto Vx = (chip->opcode & 0x0F00) >> 8;
+			auto Vy = (chip->opcode & 0x00F0) >> 4;
 			chip->V[Vx] = chip->V[Vx] ^ chip->V[Vy];
 			chip->pc += 2;
 			break;
@@ -217,47 +236,47 @@ void emulate_cycle(chip8* chip) {
 		case 0x0004: {
 			// this opcode is annoying
 			// We need to check for a carry
-			auto Vx = chip->opcode & 0x0F00;
-			auto Vy = chip->opcode & 0x00F0;
-			if (chip->V[Vy >> 4] > (0xFF - chip->V[Vx >> 8])) {
+			auto Vx = (chip->opcode & 0x0F00) >> 8;
+			auto Vy = (chip->opcode & 0x00F0) >> 4;
+			if (chip->V[Vy] > (0xFF - chip->V[Vx])) {
 				chip->V[0xF] = 1; // carry flag
 			}
 			else {
 				chip->V[0xF] = 0; //no carry
 
 			}
-			(chip->V[Vx >> 8]) += chip->V[Vy >> 4];
+			(chip->V[Vx]) += chip->V[Vy];
 			chip->pc += 2;
 			break;
 		}
 		case 0x0005: {
 			// this opcode is annoying
 			// We need to check for a borrow
-			auto Vx = chip->opcode & 0x0F00;
-			auto Vy = chip->opcode & 0x00F0;
-			if (chip->V[Vy >> 4] > (0xFF - chip->V[Vx >> 8])) {
+			auto Vx = (chip->opcode & 0x0F00) >> 8;
+			auto Vy = (chip->opcode & 0x00F0) >> 4;
+			if (chip->V[Vy] > (0xFF - chip->V[Vx])) {
 				chip->V[0xF] = 1; // borrow flag
 			}
 			else {
 				chip->V[0xF] = 0; //no borrow
 
 			}
-			(chip->V[Vx >> 8]) -= chip->V[Vy >> 4];
+			(chip->V[Vx]) -= chip->V[Vy];
 			chip->pc += 2;
 			break;
 		}
 		case 0x0006: {
-			auto Vx = chip->opcode & 0x0F00;
-			auto Vy = chip->opcode & 0x00F0;
+			auto Vx = (chip->opcode & 0x0F00) >> 8;
+			auto Vy = (chip->opcode & 0x00F0) >> 4;
 			chip->V[0xF] = (chip->V[Vx] >> 2);
 			chip->V[Vx] >> 1;
 		}
 		case 0x0007: {
-			auto Vx = chip->opcode & 0x0F00;
-			auto Vy = chip->opcode & 0x00F0;
+			auto Vx = (chip->opcode & 0x0F00) >> 8;
+			auto Vy = (chip->opcode & 0x00F0) >> 4;
 			// this opcode is annoying
 			// We need to check for a borrow
-			if (chip->V[Vy >> 4] > (0xFF - chip->V[Vx >> 8])) {
+			if (chip->V[Vy] > (0xFF - chip->V[Vx])) {
 				chip->V[0xF] = 0; // borrow flag
 			}
 			else {
@@ -269,8 +288,8 @@ void emulate_cycle(chip8* chip) {
 			break;
 		}
 		case 0x000E: {
-			auto Vx = chip->opcode & 0x0F00;
-			auto Vy = chip->opcode & 0x00F0;
+			auto Vx = (chip->opcode & 0x0F00) >> 8;
+			auto Vy = (chip->opcode & 0x00F0) >> 4;
 			chip->V[0xF] = (chip->V[Vx] << 2);
 			chip->V[Vx] << 1;
 			chip->pc += 2;
@@ -284,8 +303,8 @@ void emulate_cycle(chip8* chip) {
 		}
 	}
 	case 0x0009: {
-		auto Vx = chip->opcode & 0x0F00;
-		auto Vy = chip->opcode & 0x00F0;
+		auto Vx = (chip->opcode & 0x0F00) >> 8;
+		auto Vy = (chip->opcode & 0x00F0) >> 4;
 		if (chip->V[Vx] != chip->V[Vy]) {
 			chip->pc += 4;
 		}
@@ -302,7 +321,7 @@ void emulate_cycle(chip8* chip) {
 
 	}
 	case 0xC000: {
-		auto Vx = chip->opcode & 0x0F00;
+		auto Vx = (chip->opcode & 0x0F00) >> 8;
 		auto NN = chip->opcode & 0x00FF;
 		srand(time(NULL));
 		int randnum = rand() % 255;
@@ -311,11 +330,37 @@ void emulate_cycle(chip8* chip) {
 		break;
 	}
 	case 0xD000: {
-		auto Vx = chip->opcode & 0x0F00;
-		auto Vy = chip->opcode & 0x00F0;
+		auto Vx = (chip->opcode & 0x0F00) >> 8;
+		auto Vy = (chip->opcode & 0x00F0) >> 4;
 		auto N = chip->opcode & 0x000F;
+		auto Xpos = chip->V[Vx];
+		auto Ypos = chip->V[Vy];
+		unsigned short pixel;
+		
+
+
+		chip->V[0xF] = 0;
+		
+
+		//cant grok sprite xor :{
+		for (int yline = 0; yline < N; yline++)
+		{
+			pixel = chip->memory[chip->I + yline];
+			for (int xline = 0; xline < 8; xline++)
+			{
+				if ((pixel & (0x80 >> xline)) != 0)
+				{
+					if (chip->gfx[(Xpos + xline + ((Ypos + yline) * 64))] == 1)
+						chip->V[0xF] = 1;
+					chip->gfx[Xpos + xline + ((Ypos + yline) * 64)] ^= 1;
+				}
+			}
+		}
+
+
 		//@TODO
 		printf("draw at x = %d y = %d h = %d\n", chip->V[Vx], chip->V[Vy], N);
+		chip->draw_flag = true;
 		chip->pc += 2;
 		break;
 	}
@@ -323,7 +368,7 @@ void emulate_cycle(chip8* chip) {
 		switch (chip->opcode & 0x00FF) {
 		case 0x009E: {
 			//@TODO
-			auto Vx = chip->opcode & 0x0F00;
+			auto Vx = (chip->opcode & 0x0F00) >> 8;
 			/*
 			 * if (get_key() == chip->V[Vx]) {
 			 * chip->pc += 4;
@@ -336,7 +381,7 @@ void emulate_cycle(chip8* chip) {
 		}
 		case 0x00A1: {
 			//@TODO
-			auto Vx = chip->opcode & 0x0F00;
+			auto Vx = (chip->opcode & 0x0F00) >> 8;
 			/*
 			 * if (get_key() != chip->V[Vx]) {
 			 * chip->pc += 4;
@@ -355,7 +400,7 @@ void emulate_cycle(chip8* chip) {
 	case 0xF000: {
 		switch (chip->opcode & 0x00FF) {
 		case 0x0007: {
-			auto Vx = chip->opcode & 0x0F00;
+			auto Vx = (chip->opcode & 0x0F00) >> 8;
 			chip->V[Vx] = chip->delay_timer;
 			chip->pc += 2;
 			break;
@@ -363,32 +408,32 @@ void emulate_cycle(chip8* chip) {
 		}
 		case 0x000A: {
 			//blocking wait for keypress
-			auto Vx = chip->opcode & 0x0F00;
+			auto Vx = (chip->opcode & 0x0F00) >> 8;
 			// @TODO
 			// chip->V[Vx] = get_key_blocking();
 			chip->pc += 2;
 			break;
 		}
 		case 0x0015: {
-			auto Vx = chip->opcode & 0x0F00;
+			auto Vx = (chip->opcode & 0x0F00) >> 8;
 			chip->delay_timer = chip->V[Vx];
 			chip->pc += 2;
 			break;
 		}
 		case 0x0018: {
-			auto Vx = chip->opcode & 0x0F00;
+			auto Vx = (chip->opcode & 0x0F00) >> 8;
 			chip->sound_timer = chip->V[Vx];
 			chip->pc += 2;
 			break;
 		}
-			case 0x001E: {
+		case 0x001E: {
 			auto Vx = (chip->opcode & 0x0F00) >> 8;
 			chip->I = chip->I + chip->V[Vx];
 			chip->pc += 2;
 			break;
 		}
 		case 0x0029: {
-			auto Vx = chip->opcode & 0x0F00;
+			auto Vx = (chip->opcode & 0x0F00) >> 8;
 			//@TODO
 			// chip->I = sprite_address[chip->V[Vx]];
 			chip->pc += 2;
@@ -396,15 +441,36 @@ void emulate_cycle(chip8* chip) {
 		}
 		case 0x0033: {
 			//binary coded decimal yeah!
-			auto Vx = chip->opcode & 0x0F00;
+			auto Vx = (chip->opcode & 0x0F00) >> 8;
 			chip->I = std::stoi(get_BCD(chip->V[Vx]));
+			chip->pc += 2;
+			break;
+		}
+		case 0x0055: {
+			auto Vx = (chip->opcode & 0x0F00) >> 8;
+			
+			for (int i; i <= Vx; i++) {
+				chip->memory[chip->I + i] = chip->V[i];
+			}
+
+			chip->I += Vx + 1;
+			chip->pc += 2;
+			break;
+		}
+		case 0x0065: {
+			//similar to above but fills instead of storing
+			auto Vx = (chip->opcode & 0x0F00) >> 8;
+			for (int i; i <= Vx; i++) {
+				chip->V[i] = chip->memory[chip->I + i];
+			}
+			chip->I += Vx + 1;
 			chip->pc += 2;
 			break;
 		}
 		default: {
 			printf("opcode err [0xF000]: %x\n", chip->opcode);
 		}
-		
+
 		}
 		break;
 	}
@@ -430,7 +496,10 @@ void emulate_cycle(chip8* chip) {
 	}
 }
 
+void sfml_update(sf::RenderWindow* window) {
+	//called in infinite for loop
 
+}
 int main(int argc, char** argv) {
 
 
@@ -442,13 +511,39 @@ int main(int argc, char** argv) {
 	initialize(&myChip);
 	printf("myChip.rom[1] = %x\n", myChip.rom[1]);
 	printf("myChip.memory[514] = %x\n", myChip.memory[514]);
+	//SFML STUFF
 
-	for (;;) {
-		emulate_cycle(&myChip);
 
+	sf::RenderWindow window(sf::VideoMode(WIN_HEIGHT, WIN_WIDTH), "vCHIP - CHIP-8 Emulator by vopi181");
+	
+
+	while (window.isOpen()) {
+		emulate_cycle(&myChip, &window);
+		sf::Event event;
+		while (window.pollEvent(event))
+		{
+			// "close requested" event: we close the window
+			if (event.type == sf::Event::Closed)
+				window.close();
+		}
+		if (myChip.draw_flag) {
+
+			for (int i = 0; i > sizeof(myChip.gfx); i++) {
+				if (myChip.gfx[i] == 1) {
+					auto HorizPoint = std::floor(myChip.gfx[i] / 32);
+					sf::RectangleShape pixel(sf::Vector2f(1, 1));
+					
+				}
+			}
+		}
+		window.display();
 	}
-
-
-
-
 }
+
+	
+
+
+
+
+
+

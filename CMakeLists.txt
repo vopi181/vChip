@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.7)
 project(vChip)
 
+set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
 if (MSVC)
 find_package(sfml:x64:windows)
 link_directories(E:/vcpkg/installed/x64-windows/lib)
@@ -24,5 +27,5 @@ set(SOURCE_FILES
 
 
 add_executable(vChip ${SOURCE_FILES})
-target_link_libraries(vChip PUBLIC sfml-system)
+target_link_libraries(vChip PUBLIC sfml-system sfml-window sfml-graphics)
 

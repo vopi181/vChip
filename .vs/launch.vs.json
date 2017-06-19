@@ -7,7 +7,14 @@
       "project": "CMakeLists.txt",
       "projectTarget": "vChip.exe",
       "name": "vChip.exe",
-        "args": ["roms/Fishie.ch8"]
+      "args": [
+        "roms/Fishie.ch8"
+      ]
+    },
+    {
+      "type": "default",
+      "project": "main.cpp",
+      "name": "main.cpp"
     }
   ]
 }
