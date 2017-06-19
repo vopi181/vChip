@@ -8,6 +8,9 @@
 #include <ctime>
 #include <string>
 #include <cstring>
+#include <SFML/System.hpp>
+
+
 
 
 

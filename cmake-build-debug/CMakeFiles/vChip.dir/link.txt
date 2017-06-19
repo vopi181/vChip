@@ -1,0 +1,3 @@
+"C:\Users\Dominic Pace\AppData\Local\JetBrains\Toolbox\apps\CLion\ch-0\171.4694.31\bin\cmake\bin\cmake.exe" -E remove -f CMakeFiles\vChip.dir/objects.a
+C:\tools\mingw64\bin\ar.exe cr CMakeFiles\vChip.dir/objects.a @CMakeFiles\vChip.dir\objects1.rsp
+C:\tools\mingw64\bin\g++.exe  -fpermissive -g -march=native -O0 -g   -Wl,--whole-archive CMakeFiles\vChip.dir/objects.a -Wl,--no-whole-archive  -o vChip.exe -Wl,--out-implib,libvChip.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\vChip.dir\linklibs.rsp

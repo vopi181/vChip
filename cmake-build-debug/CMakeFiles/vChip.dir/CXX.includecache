@@ -1,0 +1,30 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/Dominic Pace/Documents/cpp/vChip/main.cpp
+iostream
+-
+cstdio
+-
+vector
+-
+fstream
+-
+iterator
+-
+algorithm
+-
+cstdlib
+-
+ctime
+-
+string
+-
+cstring
+-
+

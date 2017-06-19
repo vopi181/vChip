@@ -26,7 +26,13 @@
         "buildRoot":  "${env.LOCALAPPDATA}\\CMakeBuild\\${workspaceHash}\\build\\${name}",
         "cmakeCommandArgs":  "",
         "buildCommandArgs": "-m -v:minimal",
-        "ctestCommandArgs":  ""
+          "ctestCommandArgs": "",
+          "variables": [
+            {
+              "name": "CMAKE_TOOLCHAIN_FILE",
+              "value": "E:/vcpkg/scripts/buildsystems/vcpkg.cmake"
+            }
+          ]
         },
         {
         "name": "x64-Release",
