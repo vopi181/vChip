@@ -55,7 +55,7 @@ typedef struct {
 	unsigned short stack[16];
 	unsigned short sp;
 	unsigned char key[16];
-	bool draw_flag;
+	bool draw_flag = false;
 	std::vector<BYTE> rom;
 }chip8;
 chip8 myChip;
@@ -171,19 +171,28 @@ void emulate_cycle(chip8* chip, sf::RenderWindow* window) {
 		if (chip->V[(chip->opcode & 0x0F00) >> 8] == NN) {
 			chip->pc += 4;
 		}
+		else {
+			chip->pc += 2;
+		}
+		break;
 	}
 
-				 break;
+				 
 	case 0x4000: {
-		auto NN = (chip->opcode & 0x00FF);
-		if (chip->V[(chip->opcode & 0x0F00) >> 8] != NN) {
+		auto Vx = ((chip->opcode & 0x0F00) >> 8);
+		auto NN = chip-> V[(chip->opcode & 0x00FF)];
+
+		if (chip->V[Vx] != NN) {
 			chip->pc += 4;
+		}
+		else {
+			chip->pc += 2;
 		}
 		break;
 	}
 	case 0x5000: {
-		auto Vx = (chip->opcode & 0x0F00);
-		auto Vy = (chip->opcode & 0x00F0);
+		auto Vx = ((chip->opcode & 0x0F00) >> 8);
+		auto Vy = ((chip->opcode & 0x00F0) >> 4);
 		if ((chip->V[Vx] >> 8) == (chip->V[Vy] >> 8)) {
 			chip->pc += 4;
 
@@ -434,6 +443,7 @@ void emulate_cycle(chip8* chip, sf::RenderWindow* window) {
 		}
 		case 0x0029: {
 			auto Vx = (chip->opcode & 0x0F00) >> 8;
+			auto chr = chip->V[Vx];
 			//@TODO
 			// chip->I = sprite_address[chip->V[Vx]];
 			chip->pc += 2;
@@ -526,14 +536,19 @@ int main(int argc, char** argv) {
 			if (event.type == sf::Event::Closed)
 				window.close();
 		}
-		if (myChip.draw_flag) {
+		if (myChip.draw_flag == true) {
 
 			for (int i = 0; i > sizeof(myChip.gfx); i++) {
 				if (myChip.gfx[i] == 1) {
-					auto HorizPoint = std::floor(myChip.gfx[i] / 32);
+					auto vertPoint = std::floor(myChip.gfx[i] / 64);
+					auto horizPoint = std::floor(vertPoint / 32);
 					sf::RectangleShape pixel(sf::Vector2f(1, 1));
+					pixel.setPosition(vertPoint, horizPoint);
+					pixel.setFillColor(sf::Color::White);
+					window.draw(pixel);
 					
 				}
+				myChip.draw_flag = false;
 			}
 		}
 		window.display();
