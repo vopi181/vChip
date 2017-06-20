@@ -11,6 +11,7 @@
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
+#include <thread>
 
 
 
@@ -602,6 +603,7 @@ int main(int argc, char** argv) {
 		}
 		
 		window.display();
+		std::this_thread::sleep_for(std::chrono::microseconds(1200));
 	}
 }
 

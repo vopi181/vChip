@@ -8,7 +8,7 @@
       "projectTarget": "vChip.exe",
       "name": "vChip.exe",
       "args": [
-        "roms/Fishie.ch8"
+        "roms/PONG"
       ]
     },
     {
