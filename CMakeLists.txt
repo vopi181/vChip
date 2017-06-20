@@ -11,7 +11,8 @@ include_directories(E:/vcpkg/installed/x64-windows/include)
 endif (MSVC)
 
 if (UNIX)
-message(STATUS ">>> LINUX DOESNT HAVE SFML BACKEND YET! Please Commit that asap")
+message(STATUS ">>> LINUX SFML BACKEND NOT TESTED BUT MAY WORK")
+find_package(sfml)
 endif (UNIX)
 
 set(CMAKE_CXX_STANDARD 11)
