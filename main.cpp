@@ -167,11 +167,12 @@ void emulate_cycle(chip8* chip, sf::RenderWindow* window) {
 			if ((chip->opcode & 0x00FF) == 0x0000) {
 				chip->pc = (chip->pc + 2) & 0x0FFF;
 			}
-			printf("Unknown opcode [0x0000]: 0x%x\n", chip->opcode);
+			printf("Unknown opcode [0x0000]: 0x%x\n", chip->opcode); 
+			break;
 		} break;
 	case 0x1000:
 		chip->pc = chip->opcode & 0x0FFF;
-
+		
 		break;
 	case 0x2000:
 		chip->stack[chip->sp] = chip->pc; //need to store previous address before jump
@@ -335,6 +336,7 @@ void emulate_cycle(chip8* chip, sf::RenderWindow* window) {
 		}
 
 		}
+		break;
 	}
 	case 0x9000: {
 		auto Vx = (chip->opcode & 0x0F00) >> 8;
@@ -525,9 +527,9 @@ void emulate_cycle(chip8* chip, sf::RenderWindow* window) {
 			printf("opcode err [0xF000]: %x\n", chip->opcode);
 			break;
 		}
-				 break;
+				 
 		}
-
+		break;
 	}
 
 
@@ -608,6 +610,12 @@ void emulate_cycle(chip8* chip, sf::RenderWindow* window) {
 
 
 
+					}
+					else {
+						sf::RectangleShape pixel(sf::Vector2f(10, 10));
+						pixel.setPosition(horizPoint * 10, vertPoint * 10);
+						pixel.setFillColor(sf::Color::Black);
+						window.draw(pixel);
 					}
 
 

@@ -8,7 +8,7 @@
       "projectTarget": "vChip.exe",
       "name": "vChip.exe",
       "args": [
-        "roms/BC_test.ch8"
+        "roms/BLINKY"
       ]
     },
     {
