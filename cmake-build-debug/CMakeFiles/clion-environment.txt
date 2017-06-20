@@ -1,3 +1,0 @@
-ToolSet: w64 5.0@C:\tools\mingw64
-Options: 
-CMake: 3.7.2@C:\Users\Dominic Pace\AppData\Local\JetBrains\Toolbox\apps\CLion\ch-0\171.4694.31\bin\cmake\bin\cmake.exe
