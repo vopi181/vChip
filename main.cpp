@@ -437,8 +437,22 @@ void emulate_cycle(chip8* chip, sf::RenderWindow* window) {
 		case 0x000A: {
 			//blocking wait for keypress
 			auto Vx = (chip->opcode & 0x0F00) >> 8;
-			// @TODO
-			// chip->V[Vx] = get_key_blocking();
+
+
+			bool KeyPress = false;
+
+			for (int i = 0; i < 16; i++) {
+				if (chip->key[i]) {
+					KeyPress = true;
+					chip->V[Vx] = i;
+					break;
+				}
+
+			}
+			if (!KeyPress) {
+				return; //exit now which wont increment program counter
+			}
+			
 			chip->pc += 2;
 			break;
 		}
