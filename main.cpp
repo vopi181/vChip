@@ -149,7 +149,7 @@ void emulate_cycle(chip8* chip, sf::RenderWindow* window) {
 	switch (chip->opcode & 0xF000) {
 	case 0x0000:
 		switch (chip->opcode & 0x000F) {
-			
+
 		case 0x0000: //0x00E0: Clear Screen
 			//exec op
 			printf("clear screen\n");
@@ -171,7 +171,7 @@ void emulate_cycle(chip8* chip, sf::RenderWindow* window) {
 		} break;
 	case 0x1000:
 		chip->pc = chip->opcode & 0x0FFF;
-		
+
 		break;
 	case 0x2000:
 		chip->stack[chip->sp] = chip->pc; //need to store previous address before jump
@@ -189,7 +189,7 @@ void emulate_cycle(chip8* chip, sf::RenderWindow* window) {
 		break;
 	}
 
-				 
+
 	case 0x4000: {
 		auto Vx = ((chip->opcode & 0x0F00) >> 8);
 		auto NN = (chip->opcode & 0x00FF);
@@ -381,14 +381,14 @@ void emulate_cycle(chip8* chip, sf::RenderWindow* window) {
 			{
 				if ((pixel & (0x80 >> xline)) != 0)
 				{
-					if (chip->gfx[(x + xline + ((y + yline) * 64))] == 1)
+					if (chip->gfx[(x + xline + ((y + yline) * 64)) % 0x800] == 1)
 						chip->V[0xF] = 1;
-					chip->gfx[x + xline + ((y + yline) * 64)] ^= 1;
+					chip->gfx[x + xline + ((y + yline) * 64) % 0x800] ^= 1;
 				}
 			}
 		}
 
-		
+
 		printf("draw at x = %d y = %d h = %d\n", x, y, height);
 		chip->draw_flag = true;
 		chip->pc += 2;
@@ -397,26 +397,28 @@ void emulate_cycle(chip8* chip, sf::RenderWindow* window) {
 	case 0xE000: {
 		switch (chip->opcode & 0x00FF) {
 		case 0x009E: {
-			
+
 			auto Vx = (chip->opcode & 0x0F00) >> 8;
-			
+
 			if (chip->key[chip->V[Vx]]) {
 				chip->pc += 4;
-			} else {
+			}
+			else {
 				chip->pc += 2;
-			
-			break;
+			}
+			break; 
 		}
+
 		case 0x00A1: {
-			
+
 			auto Vx = (chip->opcode & 0x0F00) >> 8;
 			if (!chip->key[chip->V[Vx]]) {
 				chip->pc += 4;
 			}
 			else {
 				chip->pc += 2;
+			}
 
-				break;
 			break;
 		}
 		default: {
@@ -424,7 +426,8 @@ void emulate_cycle(chip8* chip, sf::RenderWindow* window) {
 			break;
 		}
 		}
-	}
+		break;
+		}
 	case 0xF000: {
 		switch (chip->opcode & 0x00FF) {
 		case 0x0007: {
@@ -452,7 +455,7 @@ void emulate_cycle(chip8* chip, sf::RenderWindow* window) {
 			if (!KeyPress) {
 				return; //exit now which wont increment program counter
 			}
-			
+
 			chip->pc += 2;
 			break;
 		}
@@ -476,7 +479,7 @@ void emulate_cycle(chip8* chip, sf::RenderWindow* window) {
 			else {
 				chip->V[0xF] = 0;
 			}
-				
+
 			chip->I += chip->V[Vx];
 			chip->pc += 2;
 			break;
@@ -499,7 +502,7 @@ void emulate_cycle(chip8* chip, sf::RenderWindow* window) {
 		}
 		case 0x0055: {
 			auto Vx = (chip->opcode & 0x0F00) >> 8;
-			
+
 			for (int i = 0; i <= Vx; ++i) {
 				chip->memory[chip->I + i] = chip->V[i];
 			}
@@ -522,9 +525,9 @@ void emulate_cycle(chip8* chip, sf::RenderWindow* window) {
 			printf("opcode err [0xF000]: %x\n", chip->opcode);
 			break;
 		}
-
+				 break;
 		}
-		break;
+
 	}
 
 
@@ -535,116 +538,116 @@ void emulate_cycle(chip8* chip, sf::RenderWindow* window) {
 
 
 	}
-	// Execute Opcode
-	// update timers
-	if (chip->delay_timer > 0)
-		--chip->delay_timer;
+				 // Execute Opcode
+				 // update timers
+				 if (chip->delay_timer > 0)
+					 --chip->delay_timer;
 
-	if (chip->sound_timer > 0)
-	{
-		if (chip->sound_timer == 1)
-			printf("BEEP!\n");
-		--(chip->sound_timer);
+				 if (chip->sound_timer > 0)
+				 {
+					 if (chip->sound_timer == 1)
+						 printf("BEEP!\n");
+					 --(chip->sound_timer);
+				 }
 	}
-}
 
-void sfml_update(sf::RenderWindow* window) {
-	//called in infinite for loop
+	void sfml_update(sf::RenderWindow* window) {
+		//called in infinite for loop
 
-}
-int main(int argc, char** argv) {
-
-
-	std::cout << argv[1];
-
-	auto file = readFile(argv[1]);
-	std::copy(file.begin(), file.end(), std::back_inserter(myChip.rom));
-
-	initialize(&myChip);
-	printf("myChip.rom[1] = %x\n", myChip.rom[1]);
-	printf("myChip.memory[514] = %x\n", myChip.memory[514]);
-	//SFML STUFF
+	}
+	int main(int argc, char** argv) {
 
 
-	sf::RenderWindow window(sf::VideoMode(WIN_HEIGHT, WIN_WIDTH), "vCHIP - CHIP-8 Emulator by vopi181");
-	
+		std::cout << argv[1];
 
-	while (window.isOpen()) {
-		updateKeyState(&myChip);
-		emulate_cycle(&myChip, &window);
-		sf::Event event;
-		while (window.pollEvent(event))
-		{
-			// "close requested" event: we close the window
-			if (event.type == sf::Event::Closed)
-				window.close();
-		}
-		
+		auto file = readFile(argv[1]);
+		std::copy(file.begin(), file.end(), std::back_inserter(myChip.rom));
 
-		if (myChip.draw_flag == true) {
-			auto vertPoint = 0;
-			auto vertCounter = 0;
-			for (int i = 0; i < sizeof(myChip.gfx); ++i) {
-				auto horizPoint = (i % 64);
-				
-				if (myChip.gfx[i] == 1) {
-					
-					
-					
-					
+		initialize(&myChip);
+		printf("myChip.rom[1] = %x\n", myChip.rom[1]);
+		printf("myChip.memory[514] = %x\n", myChip.memory[514]);
+		//SFML STUFF
 
 
+		sf::RenderWindow window(sf::VideoMode(WIN_HEIGHT, WIN_WIDTH), "vCHIP - CHIP-8 Emulator by vopi181");
 
-					/*auto vertPoint = std::floor(64 / i) * 10;*/
 
-					
-					sf::RectangleShape pixel(sf::Vector2f(10, 10));
-					pixel.setPosition(horizPoint * 10, vertPoint * 10);
-					pixel.setFillColor(sf::Color::White);
-					window.draw(pixel);
-
-					
-					
-				}
-				
-				
-				vertCounter++;
-				if (vertCounter == 64) {
-					vertPoint += 1;
-					vertCounter = 0;
-				}
-				
+		while (window.isOpen()) {
+			updateKeyState(&myChip);
+			emulate_cycle(&myChip, &window);
+			sf::Event event;
+			while (window.pollEvent(event))
+			{
+				// "close requested" event: we close the window
+				if (event.type == sf::Event::Closed)
+					window.close();
 			}
-			myChip.draw_flag = false;
+
+
+			if (myChip.draw_flag == true) {
+				auto vertPoint = 0;
+				auto vertCounter = 0;
+				for (int i = 0; i < sizeof(myChip.gfx); ++i) {
+					auto horizPoint = (i % 64);
+
+					if (myChip.gfx[i] == 1) {
+
+
+
+
+
+
+
+						/*auto vertPoint = std::floor(64 / i) * 10;*/
+
+
+						sf::RectangleShape pixel(sf::Vector2f(10, 10));
+						pixel.setPosition(horizPoint * 10, vertPoint * 10);
+						pixel.setFillColor(sf::Color::White);
+						window.draw(pixel);
+
+
+
+					}
+
+
+					vertCounter++;
+					if (vertCounter == 64) {
+						vertPoint += 1;
+						vertCounter = 0;
+					}
+
+				}
+				myChip.draw_flag = false;
+			}
+
+			window.display();
+			std::this_thread::sleep_for(std::chrono::microseconds(1200));
 		}
-		
-		window.display();
-		std::this_thread::sleep_for(std::chrono::microseconds(1200));
 	}
-}
 
 
-void updateKeyState(chip8* chip) {
-	setKeyState(chip, 0x1, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num1));
-	setKeyState(chip, 0x2, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num2));
-	setKeyState(chip, 0x3, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num3));
-	setKeyState(chip, 0xC, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num4));
-				
-	setKeyState(chip, 0x4, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Q));
-	setKeyState(chip, 0x5, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W));
-	setKeyState(chip, 0x6, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::E));
-	setKeyState(chip, 0xD, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R));
-			
-	setKeyState(chip, 0x7, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A));
-	setKeyState(chip, 0x8, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S));
-	setKeyState(chip, 0x9, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D));
-	setKeyState(chip, 0xE, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::F));
-			 
-	setKeyState(chip, 0xA, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Z));
-	setKeyState(chip, 0x0, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::X));
-	setKeyState(chip, 0xB, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::C));
-	setKeyState(chip, 0xF, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::V));
-}
+	void updateKeyState(chip8* chip) {
+		setKeyState(chip, 0x1, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num1));
+		setKeyState(chip, 0x2, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num2));
+		setKeyState(chip, 0x3, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num3));
+		setKeyState(chip, 0xC, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num4));
+
+		setKeyState(chip, 0x4, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Q));
+		setKeyState(chip, 0x5, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W));
+		setKeyState(chip, 0x6, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::E));
+		setKeyState(chip, 0xD, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R));
+
+		setKeyState(chip, 0x7, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A));
+		setKeyState(chip, 0x8, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S));
+		setKeyState(chip, 0x9, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D));
+		setKeyState(chip, 0xE, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::F));
+
+		setKeyState(chip, 0xA, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Z));
+		setKeyState(chip, 0x0, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::X));
+		setKeyState(chip, 0xB, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::C));
+		setKeyState(chip, 0xF, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::V));
+	}
 
 
 
