@@ -12,3 +12,21 @@ qwer
 asdf
 zxcv
 ```
+
+## Building on Windows
+
+1. Install VCPKG
+2. Install SFML:x64-windows using VCPKG
+3. Build
+4. Copy DLLs (From VCPKG install folder to output dir)
+5. Launch using vChip.exe "roms/ROMHERE"
+
+## Building on Linux/Unix-like (OSX, *BSD)
+
+Although I use linux daily, I happened to code the GUI specific parts on windows so I can't promise building it works perfectly
+
+1. Install SFML (atleast system, window, graphics sfml libs) from your package manager (APT, pacman, brew, ports etc)
+2. Try to build
+3. If works good
+4. If not mess with cmake to fix your issue finding SMFL libs
+5. Please file in issue with the fix 
