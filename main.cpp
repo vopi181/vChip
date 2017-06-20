@@ -491,7 +491,7 @@ void emulate_cycle(chip8* chip, sf::RenderWindow* window) {
 			auto chr = chip->V[Vx];
 			//@TODO
 			// chip->I = sprite_address[chip->V[Vx]];
-			chip->I = chip->V[Vx] * 0x5;
+			chip->I = 0x50 + chip->V[Vx] * 0x5;
 			chip->pc += 2;
 			break;
 		}
