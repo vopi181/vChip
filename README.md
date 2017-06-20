@@ -17,7 +17,7 @@ zxcv
 
 1. Install VCPKG
 2. Install SFML:x64-windows using VCPKG
-3. Build (*WILL PROBABLY NEED TO CHANGE WHERE THE VCPKG FOLDER IS LOCATED IN THE CMAKEFILE*)
+3. Build (**WILL PROBABLY NEED TO CHANGE WHERE THE VCPKG FOLDER IS LOCATED IN THE CMAKEFILE**)
 4. Copy DLLs (From VCPKG install folder to output dir)
 5. Launch using vChip.exe "roms/ROMHERE"
 
