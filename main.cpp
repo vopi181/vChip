@@ -44,6 +44,7 @@
 
 typedef unsigned char BYTE;
 
+
 typedef struct {
 	unsigned short opcode;
 	std::vector<BYTE> memory;
@@ -61,6 +62,7 @@ typedef struct {
 }chip8;
 chip8 myChip;
 
+void updateKeyState(chip8* chip);
 
 std::vector<BYTE> readFile(std::string filename)
 {
@@ -133,7 +135,9 @@ void initialize(chip8* chip) {
 	system("pause");
 }
 
-
+void setKeyState(chip8* chip, unsigned int key, bool state) {
+	chip->key[key] = state;
+}
 
 void emulate_cycle(chip8* chip, sf::RenderWindow* window) {
 	// Fetch opcode
@@ -384,7 +388,7 @@ void emulate_cycle(chip8* chip, sf::RenderWindow* window) {
 			}
 		}
 
-		//@TODO
+		
 		printf("draw at x = %d y = %d h = %d\n", x, y, height);
 		chip->draw_flag = true;
 		chip->pc += 2;
@@ -393,29 +397,26 @@ void emulate_cycle(chip8* chip, sf::RenderWindow* window) {
 	case 0xE000: {
 		switch (chip->opcode & 0x00FF) {
 		case 0x009E: {
-			//@TODO
+			
 			auto Vx = (chip->opcode & 0x0F00) >> 8;
-			/*
-			 * if (get_key() == chip->V[Vx]) {
-			 * chip->pc += 4;
-			 * } else {
-			 *  chip->pc += 2??
-			 * }
-			 *
-			 */
+			
+			if (chip->key[chip->V[Vx]]) {
+				chip->pc += 4;
+			} else {
+				chip->pc += 2;
+			
 			break;
 		}
 		case 0x00A1: {
-			//@TODO
+			
 			auto Vx = (chip->opcode & 0x0F00) >> 8;
-			/*
-			 * if (get_key() != chip->V[Vx]) {
-			 * chip->pc += 4;
-			 * } else {
-			 *  chip->pc += 2??
-			 * }
-			 *
-			 */
+			if (!chip->key[chip->V[Vx]]) {
+				chip->pc += 4;
+			}
+			else {
+				chip->pc += 2;
+
+				break;
 			break;
 		}
 		default: {
@@ -555,6 +556,7 @@ int main(int argc, char** argv) {
 	
 
 	while (window.isOpen()) {
+		updateKeyState(&myChip);
 		emulate_cycle(&myChip, &window);
 		sf::Event event;
 		while (window.pollEvent(event))
@@ -607,7 +609,28 @@ int main(int argc, char** argv) {
 	}
 }
 
-	
+
+void updateKeyState(chip8* chip) {
+	setKeyState(chip, 0x1, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num1));
+	setKeyState(chip, 0x2, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num2));
+	setKeyState(chip, 0x3, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num3));
+	setKeyState(chip, 0xC, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num4));
+				
+	setKeyState(chip, 0x4, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Q));
+	setKeyState(chip, 0x5, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W));
+	setKeyState(chip, 0x6, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::E));
+	setKeyState(chip, 0xD, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R));
+			
+	setKeyState(chip, 0x7, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A));
+	setKeyState(chip, 0x8, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S));
+	setKeyState(chip, 0x9, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D));
+	setKeyState(chip, 0xE, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::F));
+			 
+	setKeyState(chip, 0xA, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Z));
+	setKeyState(chip, 0x0, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::X));
+	setKeyState(chip, 0xB, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::C));
+	setKeyState(chip, 0xF, sf::Keyboard::isKeyPressed(sf::Keyboard::Key::V));
+}
 
 
 
