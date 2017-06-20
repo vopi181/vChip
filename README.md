@@ -17,7 +17,7 @@ zxcv
 
 1. Install VCPKG
 2. Install SFML:x64-windows using VCPKG
-3. Build
+3. Build (*WILL PROBABLY NEED TO CHANGE WHERE THE VCPKG FOLDER IS LOCATED IN THE CMAKEFILE*)
 4. Copy DLLs (From VCPKG install folder to output dir)
 5. Launch using vChip.exe "roms/ROMHERE"
 
@@ -27,6 +27,7 @@ Although I use linux daily, I happened to code the GUI specific parts on windows
 
 1. Install SFML (atleast system, window, graphics sfml libs) from your package manager (APT, pacman, brew, ports etc)
 2. Try to build
-3. If works good
-4. If not mess with cmake to fix your issue finding SMFL libs
-5. Please file in issue with the fix 
+3. If it works, play!
+4. If not, mess with cmake to fix your issue finding SMFL libs
+5. Please file in issue with the fix
+6. Launch using ./vChip "roms/ROMHERE"
