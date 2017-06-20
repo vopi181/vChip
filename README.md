@@ -5,8 +5,9 @@ vopi's chip8 emu
 ![Screenshot 1](https://github.com/vopi181/vChip/blob/master/screenshots/screen1.png)
 
 
-Keys = 
-```1234
+## Keys
+```
+1234
 qwer
 asdf
 zxcv
