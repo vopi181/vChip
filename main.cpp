@@ -565,23 +565,40 @@ int main(int argc, char** argv) {
 		
 
 		if (myChip.draw_flag == true) {
-
+			auto vertPoint = 0;
+			auto vertCounter = 0;
 			for (int i = 0; i < sizeof(myChip.gfx); ++i) {
+				auto horizPoint = (i % 64);
+				
 				if (myChip.gfx[i] == 1) {
 					
+					
+					
+					
 
-					auto vertPoint = std::floor(i / 64) * 10;
-					auto horizPoint = std::floor(vertPoint / 32) * 10;
+
+
+					/*auto vertPoint = std::floor(64 / i) * 10;*/
+
+					
 					sf::RectangleShape pixel(sf::Vector2f(10, 10));
-					pixel.setPosition(vertPoint, horizPoint);
+					pixel.setPosition(horizPoint * 10, vertPoint * 10);
 					pixel.setFillColor(sf::Color::White);
 					window.draw(pixel);
 
 					
 					
 				}
-				myChip.draw_flag = false;
+				
+				
+				vertCounter++;
+				if (vertCounter == 64) {
+					vertPoint += 1;
+					vertCounter = 0;
+				}
+				
 			}
+			myChip.draw_flag = false;
 		}
 		
 		window.display();
