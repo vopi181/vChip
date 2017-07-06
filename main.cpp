@@ -63,8 +63,10 @@ void updateKeyState(chip8* chip);
 
 /** 
  * A helper function that returns a std::vector of BYTEs (typedef'd unsigned char) 
+ *
  * \param filename The string representation of a binary file to read
- */
+ * \return std::vector of BYTEs
+ */ 
 std::vector<BYTE> readFile(std::string filename)
 {
 	// open the file:
@@ -93,7 +95,10 @@ std::vector<BYTE> readFile(std::string filename)
 }
 
 /**
- * 
+ * Computes the Binary-coded decimal of a int
+ * \param num Integer to get the BCD representation
+ * \return Binary-coded decimal represented in a std::string
+ *
  *
  */
 
