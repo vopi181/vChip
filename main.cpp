@@ -1,3 +1,6 @@
+/**
+ * \author Dominic Pace
+ */
 #include <iostream>  //c++ style io
 #include <cstdio>  //good ol' c style io
 #include <vector> //gotta exclude c scum
@@ -12,13 +15,6 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include <thread>
-
-
-
-
-
-
-
 
 // ref
 // 0x000-0x1FF - Chip 8 interpreter (contains font set in emu)
@@ -37,33 +33,38 @@
 // decs
 
 
-#define WIN_HEIGHT 640
-#define WIN_WIDTH 320
+#define WIN_HEIGHT 640 /** Height of Window */
+#define WIN_WIDTH 320 /** Width of Window */
 //sprite width is static @ 8 bytes / 1 byte
-#define SPRITE_WIDTH = 8
+#define SPRITE_WIDTH = 8 /** Width of Sprites. WARNING: THIS IS SHOULD NOT BE CHANGED AS THE CHIP8 SPEC DECLARES THIS AS 8 */
 
-typedef unsigned char BYTE;
+typedef unsigned char BYTE; /** typedef'd for convenience */
 
-
+/**
+ * Main Chip8 CPU representation */
 typedef struct {
 	unsigned short opcode;
-	std::vector<BYTE> memory;
-	unsigned char V[16];
+	std::vector<BYTE> memory; ///Represents the Chip8's 4k of RAM
+	unsigned char V[16]; /** One element for each on of the Chip8's registers */
 	unsigned short I;
-	unsigned short pc;
-	unsigned char gfx[64 * 32];
+	unsigned short pc; /// Program Counter
+	unsigned char gfx[64 * 32]; /// Represents the Chip8's 64 x 32 resolution
 	unsigned char delay_timer = 0;
 	unsigned char sound_timer = 0;
-	unsigned short stack[16];
-	unsigned short sp;
-	unsigned char key[16];
+	unsigned short stack[16]; /// Represents the Chip8's stack. There is some debate online about whether or not 16 is the accurate size.
+	unsigned short sp; /// Stack Pointer
+	unsigned char key[16]; ///Represents the Chip8's Hex Keypad
 	bool draw_flag = false;
-	std::vector<BYTE> rom;
+	std::vector<BYTE> rom; ///Represents the ROM 
 }chip8;
 chip8 myChip;
 
 void updateKeyState(chip8* chip);
 
+/** 
+ * A helper function that returns a std::vector of BYTEs (typedef'd unsigned char) 
+ * \param filename The string representation of a binary file to read
+ */
 std::vector<BYTE> readFile(std::string filename)
 {
 	// open the file:
@@ -90,6 +91,11 @@ std::vector<BYTE> readFile(std::string filename)
 
 	return vec;
 }
+
+/**
+ * 
+ *
+ */
 
 std::string get_BCD(int num) {
 	if (num <= 1)
@@ -150,7 +156,7 @@ void emulate_cycle(chip8* chip, sf::RenderWindow* window) {
 	case 0x0000:
 		switch (chip->opcode & 0x000F) {
 
-		case 0x0000: //0x00E0: Clear Screen
+		ase 0x0000: //0x00E0: Clear Screen
 			//exec op
 			printf("clear screen\n");
 			window->clear(sf::Color::Black);
@@ -627,6 +633,7 @@ void emulate_cycle(chip8* chip, sf::RenderWindow* window) {
 
 				}
 				myChip.draw_flag = false;
+				
 			}
 
 			window.display();
