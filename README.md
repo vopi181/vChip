@@ -31,3 +31,8 @@ Although I use linux daily, I happened to code the GUI specific parts on windows
 4. If not, mess with cmake to fix your issue finding SMFL libs
 5. Please file in issue with the fix
 6. Launch using ./vChip "roms/ROMHERE"
+
+## DOCUMENTATION BUILD INSTRUCTIONS
+1. Install Doxygen
+2. Run ```doxygen``` or ```doxygen Doxyfile```
+3. Open docs/index.html in a browser
