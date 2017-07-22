@@ -15,7 +15,6 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include <thread>
-
 // ref
 // 0x000-0x1FF - Chip 8 interpreter (contains font set in emu)
 // 0x050-0x0A0 - Used for the built in 4x5 pixel font set (0-F)
@@ -161,7 +160,7 @@ void emulate_cycle(chip8* chip, sf::RenderWindow* window) {
 	case 0x0000:
 		switch (chip->opcode & 0x000F) {
 
-		ase 0x0000: //0x00E0: Clear Screen
+		case 0x0000: //0x00E0: Clear Screen
 			//exec op
 			printf("clear screen\n");
 			window->clear(sf::Color::Black);
