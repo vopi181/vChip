@@ -12,6 +12,9 @@ qwer
 asdf
 zxcv
 ```
+## Prebuilt Binaries
+https://gitlab.com/vopi181/vChip/pipelines
+currently only linux is set to autobuild
 
 ## Building on Windows
 
