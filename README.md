@@ -1,5 +1,5 @@
 # vChip
-vopi's chip8 emu
+vopi's chip8 emu (this is relatively bad code, but for historical reasons, I'm keeping it)
 
 ## Screen Shots
 ![Screenshot 1](https://github.com/vopi181/vChip/blob/master/screenshots/screen1.png)
